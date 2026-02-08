@@ -21,6 +21,7 @@ This repo uses a **production-first** branching model suitable for scalable depl
 - **Commits**: Use conventional commits when possible (`feat:`, `fix:`, `chore:`, `docs:`).
 - **Tags**: Use semantic versioning on `main` for releases (`v1.0.0`).
 - **CI/CD**: Run tests and lint on PRs; deploy `main` to production (see `DEVOPS_SCRIPTS.md`).
+- **Branch protection**: For private repos, GitHub requires Pro to protect branches. Consider enabling protection on `main` (no force push, require PR) when available, or make the repo public.
 
 ## Quick reference
 
