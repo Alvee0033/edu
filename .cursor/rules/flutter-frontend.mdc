@@ -1,0 +1,24 @@
+---
+description: Flutter frontend standards for reusable widgets
+globs: "{frontend,app}/**/*.dart"
+alwaysApply: false
+---
+# Flutter Frontend Standards
+- Build UI from small, reusable widgets.
+- Keep widgets pure; move logic to controllers/providers.
+- Use Riverpod for state; avoid global mutable state.
+- Use typed models and `freezed` for immutability.
+- Separate networking layer from UI (repository pattern).
+- Prefer composition over inheritance.
+
+## Widget Structure
+```text
+lib/
+  ui/
+    atoms/
+    molecules/
+    organisms/
+    pages/
+  state/
+  data/
+```

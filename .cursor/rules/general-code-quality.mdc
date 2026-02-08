@@ -1,0 +1,18 @@
+---
+description: Core code quality standards
+alwaysApply: true
+---
+# Core Code Quality
+- Prefer clear, readable code over clever code.
+- Use small functions with single responsibility.
+- Name variables and functions by intent, not type.
+- Validate inputs at boundaries; never trust external data.
+- Handle errors explicitly; never swallow exceptions.
+- Add brief comments only where logic is non-obvious.
+- Keep files focused; split large files into modules.
+
+## Example
+```text
+Bad: doStuff(a, b)
+Good: calculateCourseScore(userProgress, courseStats)
+```

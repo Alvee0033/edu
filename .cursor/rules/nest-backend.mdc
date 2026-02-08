@@ -1,0 +1,17 @@
+---
+description: NestJS backend standards for security and clarity
+globs: "backend/**/*.ts"
+alwaysApply: false
+---
+# NestJS Backend Standards
+- Use DTOs with `class-validator` for all inputs.
+- Keep controllers thin; put logic in services.
+- Use dependency injection; avoid static helpers.
+- Enforce auth/roles with guards and decorators.
+- Log errors with context; never expose secrets.
+- Prefer Prisma/TypeORM transactions for multi-write flows.
+
+## Endpoint Pattern
+```text
+Controller -> Service -> Repository/DB
+```

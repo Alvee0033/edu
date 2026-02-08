@@ -1,0 +1,85 @@
+erDiagram
+    USERS ||--|| PROFILES : has
+    USERS ||--o{ COURSE_ASSESSMENTS : writes
+    USERS ||--o{ PROGRESS : tracks
+    TOPICS ||--o{ COURSES : includes
+    YOUTUBE_CHANNELS ||--o{ COURSES : publishes
+    COURSES ||--o{ COURSE_VIDEOS : contains
+    COURSES ||--o{ COURSE_ASSESSMENTS : assessed_by
+    COURSES ||--o{ PROGRESS : measured_in
+    COURSE_VIDEOS ||--o{ PROGRESS : tracked_for
+    COURSE_VIDEOS ||--|| VIDEO_CACHE : cached
+
+    USERS {
+      uuid id PK
+      text email
+      text password_hash
+      text role
+      timestamptz created_at
+    }
+
+    PROFILES {
+      uuid user_id PK, FK
+      text name
+      text avatar_url
+      text bio
+    }
+
+    TOPICS {
+      uuid id PK
+      text name
+      text slug
+    }
+
+    YOUTUBE_CHANNELS {
+      uuid id PK
+      text channel_id
+      text title
+      boolean verified
+      text language
+    }
+
+    COURSES {
+      uuid id PK
+      text title
+      text description
+      uuid topic_id FK
+      uuid channel_id FK
+      timestamptz created_at
+    }
+
+    COURSE_VIDEOS {
+      uuid id PK
+      uuid course_id FK
+      text youtube_video_id
+      text title
+      integer duration_seconds
+      bigint views
+      timestamptz published_at
+    }
+
+    COURSE_ASSESSMENTS {
+      uuid id PK
+      uuid user_id FK
+      uuid course_id FK
+      integer rating
+      text notes
+      text status
+      timestamptz created_at
+    }
+
+    PROGRESS {
+      uuid id PK
+      uuid user_id FK
+      uuid course_id FK
+      uuid video_id FK
+      integer progress_percent
+      timestamptz watched_at
+    }
+
+    VIDEO_CACHE {
+      text youtube_video_id PK
+      jsonb data_json
+      text etag
+      timestamptz last_fetched_at
+    }

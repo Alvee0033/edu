@@ -1,0 +1,163 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Users & Auth ───────────────────────────────────────────────────────────
+
+model User {
+  id           String   @id @default(uuid()) @db.Uuid
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  role         Role     @default(USER)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  profile     Profile?
+  assessments CourseAssessment[]
+  progress    VideoProgress[]
+
+  @@map("users")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model Profile {
+  userId    String  @id @map("user_id") @db.Uuid
+  name      String  @default("")
+  avatarUrl String? @map("avatar_url")
+  bio       String  @default("")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("profiles")
+}
+
+// ─── Topics ─────────────────────────────────────────────────────────────────
+
+model Topic {
+  id   String @id @default(uuid()) @db.Uuid
+  name String @unique
+  slug String @unique
+
+  courses Course[]
+
+  @@map("topics")
+}
+
+// ─── YouTube Channels ───────────────────────────────────────────────────────
+
+model YoutubeChannel {
+  id        String  @id @default(uuid()) @db.Uuid
+  channelId String  @unique @map("channel_id")
+  title     String
+  verified  Boolean @default(false)
+  language  String  @default("en")
+
+  courses Course[]
+
+  @@map("youtube_channels")
+}
+
+// ─── Courses ────────────────────────────────────────────────────────────────
+
+model Course {
+  id          String   @id @default(uuid()) @db.Uuid
+  title       String
+  description String   @default("")
+  thumbnail   String   @default("")
+  topicId     String   @map("topic_id") @db.Uuid
+  channelId   String   @map("channel_id") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  topic       Topic           @relation(fields: [topicId], references: [id])
+  channel     YoutubeChannel  @relation(fields: [channelId], references: [id])
+  videos      CourseVideo[]
+  assessments CourseAssessment[]
+  progress    VideoProgress[]
+
+  @@map("courses")
+}
+
+// ─── Course Videos ──────────────────────────────────────────────────────────
+
+model CourseVideo {
+  id              String   @id @default(uuid()) @db.Uuid
+  courseId         String   @map("course_id") @db.Uuid
+  youtubeVideoId  String   @map("youtube_video_id")
+  title           String
+  durationSeconds Int      @default(0) @map("duration_seconds")
+  views           BigInt   @default(0)
+  publishedAt     DateTime @map("published_at")
+  position        Int      @default(0)
+
+  course   Course          @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  progress VideoProgress[]
+  cache    VideoCache?
+
+  @@unique([courseId, youtubeVideoId])
+  @@map("course_videos")
+}
+
+// ─── Assessments ────────────────────────────────────────────────────────────
+
+model CourseAssessment {
+  id        String           @id @default(uuid()) @db.Uuid
+  userId    String           @map("user_id") @db.Uuid
+  courseId   String           @map("course_id") @db.Uuid
+  rating    Int?
+  notes     String           @default("")
+  status    AssessmentStatus @default(SAVED)
+  createdAt DateTime         @default(now()) @map("created_at")
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])
+  @@map("course_assessments")
+}
+
+enum AssessmentStatus {
+  SAVED
+  IN_PROGRESS
+  COMPLETED
+  ASSESSED
+}
+
+// ─── Video Progress ─────────────────────────────────────────────────────────
+
+model VideoProgress {
+  id              String   @id @default(uuid()) @db.Uuid
+  userId          String   @map("user_id") @db.Uuid
+  courseId         String   @map("course_id") @db.Uuid
+  videoId         String   @map("video_id") @db.Uuid
+  progressPercent Int      @default(0) @map("progress_percent")
+  watchedAt       DateTime @default(now()) @map("watched_at")
+
+  user   User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course Course      @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  video  CourseVideo  @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, videoId])
+  @@map("video_progress")
+}
+
+// ─── Video Cache ────────────────────────────────────────────────────────────
+
+model VideoCache {
+  videoId       String   @id @map("video_id") @db.Uuid
+  dataJson      Json     @map("data_json")
+  etag          String   @default("")
+  lastFetchedAt DateTime @default(now()) @map("last_fetched_at")
+
+  video CourseVideo @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  @@map("video_cache")
+}

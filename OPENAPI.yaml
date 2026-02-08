@@ -1,0 +1,102 @@
+openapi: 3.0.3
+info:
+  title: Study Course Discovery API
+  version: 0.1.0
+servers:
+  - url: https://api.example.com
+paths:
+  /auth/register:
+    post:
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        "201":
+          description: Created
+  /auth/login:
+    post:
+      summary: Login and receive tokens
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: OK
+  /topics:
+    get:
+      summary: List topics
+      responses:
+        "200":
+          description: OK
+  /courses:
+    get:
+      summary: List courses by topic or query
+      parameters:
+        - in: query
+          name: topic
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+  /courses/{id}:
+    get:
+      summary: Get course details
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+  /courses/{id}/assess:
+    post:
+      summary: Assess a course
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+  /users/me:
+    get:
+      summary: Get current user profile
+      responses:
+        "200":
+          description: OK
+  /users/me/courses:
+    get:
+      summary: Get saved and assessed courses
+      responses:
+        "200":
+          description: OK
+components:
+  schemas:
+    RegisterRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+        password:
+          type: string
