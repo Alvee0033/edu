@@ -12,6 +12,15 @@ import { LoginDto } from './dto/login.dto.js';
 import { AuthResponseDto } from './dto/auth-response.dto.js';
 import type { JwtPayload } from './strategies/jwt.strategy.js';
 
+/** Only the columns auth needs -- avoids fetching description, timestamps, etc. */
+const AUTH_USER_SELECT = {
+  id: true,
+  email: true,
+  passwordHash: true,
+  role: true,
+  profile: { select: { name: true } },
+} as const;
+
 @Injectable()
 export class AuthService {
   private readonly SALT_ROUNDS = 12;
@@ -24,8 +33,10 @@ export class AuthService {
 
   /** Register a new user and return tokens. */
   async register(dto: RegisterDto): Promise<AuthResponseDto> {
+    // Check existence with minimal select (just id)
     const existing = await this.prisma.user.findUnique({
       where: { email: dto.email },
+      select: { id: true },
     });
     if (existing) {
       throw new ConflictException('Email already registered');
@@ -39,7 +50,12 @@ export class AuthService {
         passwordHash,
         profile: { create: { name: dto.name } },
       },
-      include: { profile: true },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        profile: { select: { name: true } },
+      },
     });
 
     return this.buildAuthResponse(
@@ -52,9 +68,10 @@ export class AuthService {
 
   /** Validate credentials and return tokens. */
   async login(dto: LoginDto): Promise<AuthResponseDto> {
+    // Fetch only the columns needed for password check + token
     const user = await this.prisma.user.findUnique({
       where: { email: dto.email },
-      include: { profile: true },
+      select: AUTH_USER_SELECT,
     });
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
@@ -80,9 +97,15 @@ export class AuthService {
         secret: this.config.get<string>('JWT_REFRESH_SECRET'),
       });
 
+      // Minimal fetch -- only what the token response needs
       const user = await this.prisma.user.findUnique({
         where: { id: payload.sub },
-        include: { profile: true },
+        select: {
+          id: true,
+          email: true,
+          role: true,
+          profile: { select: { name: true } },
+        },
       });
       if (!user) throw new UnauthorizedException('User not found');
 
@@ -105,13 +128,7 @@ export class AuthService {
     role: string,
     name: string,
   ): AuthResponseDto {
-    const payload: JwtPayload = { sub: id, email, role };
-
-    const tokenPayload = {
-      sub: payload.sub,
-      email: payload.email,
-      role: payload.role,
-    } as Record<string, unknown>;
+    const tokenPayload = { sub: id, email, role } as Record<string, unknown>;
 
     const accessToken = this.jwt.sign(tokenPayload, {
       secret: this.config.getOrThrow<string>('JWT_SECRET'),

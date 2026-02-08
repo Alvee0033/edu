@@ -54,13 +54,28 @@ source ~/.bashrc
 
 1. Enable **USB debugging** on your Android device (Settings → Developer options).
 2. Connect the device via USB (or start an emulator).
-3. Run:
+3. If ADB says "insufficient permissions", add udev rules (one-time):
+
+```bash
+sudo cp scripts/51-android-udev.rules /etc/udev/rules.d/
+sudo udevadm control --reload-rules && sudo udevadm trigger
+# Unplug and replug the USB cable, then:
+adb devices
+```
+
+4. Install the APK:
 
 ```bash
 ./scripts/build-and-install-apk.sh
 ```
 
-This builds a release APK, then installs it with `adb install -r`. If no device is connected, the script prints the path to the APK so you can run `adb install -r <path>` later.
+Or install an already-built APK manually:
+
+```bash
+adb install -r frontend/build/app/outputs/flutter-apk/app-release.apk
+```
+
+If no device is connected, the script prints the path to the APK so you can run `adb install -r <path>` later.
 
 ## Optional: Android Studio
 

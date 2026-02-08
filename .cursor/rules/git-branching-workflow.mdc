@@ -1,0 +1,42 @@
+---
+description: When to use which branch and when to merge — guide the user at the right time during this project
+alwaysApply: true
+---
+
+# Git Branching — When to Do What
+
+Use this to **guide the user at the right moment** during the project.
+
+## Before starting feature work
+- **Check**: Is the user on a feature branch or about to start a new feature?
+- **Guide**: Remind to work on a feature branch. If they haven’t switched yet:  
+  `git checkout develop && git pull` then `git checkout feature/<name>` (or create `feature/<new-name>` from develop).
+
+## While working
+- **Default**: Assume work is on a feature branch. Don’t suggest merging to `main` or `develop` until the feature is done.
+
+## When a feature or task is “done”
+- **Guide**: “This feature looks complete. Merge into develop when ready:  
+  `git checkout develop && git pull && git merge feature/<name> && git push origin develop`  
+  or open a PR: feature branch → develop.”
+- Optionally suggest deleting the feature branch after merge:  
+  `git branch -d feature/<name>`.
+
+## When they want to release / ship to production
+- **Guide**: “Merge develop into main for release:  
+  `git checkout main && git pull && git merge develop && git push origin main`  
+  then tag: `git tag v1.0.0 && git push --tags`.”  
+  Or: open a PR develop → main on GitHub.
+- After release: suggest syncing develop with main:  
+  `git checkout develop && git merge main && git push origin develop`.
+
+## Hotfix (urgent production fix)
+- **Guide**: Branch from `main`: `git checkout main && git pull && git checkout -b hotfix/<name>`.  
+  After fix: merge to `main`, push, then merge `main` into `develop`.
+
+## Summary
+- **Starting work** → use/checkout a **feature** branch from develop.
+- **Feature finished** → merge feature → **develop** (and remind them).
+- **Releasing** → merge **develop** → **main**, tag, then sync **develop** with main.
+
+Keep guidance brief; one or two sentences plus the exact commands when relevant.

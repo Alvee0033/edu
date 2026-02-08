@@ -83,6 +83,10 @@ model Course {
   assessments CourseAssessment[]
   progress    VideoProgress[]
 
+  // Indexes for filtered listing + pagination
+  @@index([topicId, createdAt(sort: Desc)], map: "idx_courses_topic_created")
+  @@index([channelId], map: "idx_courses_channel")
+  @@index([createdAt(sort: Desc)], map: "idx_courses_created_desc")
   @@map("courses")
 }
 
@@ -103,6 +107,8 @@ model CourseVideo {
   cache    VideoCache?
 
   @@unique([courseId, youtubeVideoId])
+  // Index for ordered video listing within a course
+  @@index([courseId, position], map: "idx_course_videos_course_pos")
   @@map("course_videos")
 }
 
@@ -121,6 +127,9 @@ model CourseAssessment {
   course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@unique([userId, courseId])
+  // Index for "my courses" listing + dashboard counts
+  @@index([userId, status, createdAt(sort: Desc)], map: "idx_assessments_user_status")
+  @@index([courseId], map: "idx_assessments_course")
   @@map("course_assessments")
 }
 
@@ -146,6 +155,9 @@ model VideoProgress {
   video  CourseVideo  @relation(fields: [videoId], references: [id], onDelete: Cascade)
 
   @@unique([userId, videoId])
+  // Index for dashboard analytics + recent activity
+  @@index([userId, watchedAt(sort: Desc)], map: "idx_progress_user_watched")
+  @@index([userId, courseId], map: "idx_progress_user_course")
   @@map("video_progress")
 }
 

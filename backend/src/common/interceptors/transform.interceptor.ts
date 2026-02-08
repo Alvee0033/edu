@@ -15,9 +15,10 @@ export interface ApiResponse<T> {
  * Wrap all successful responses in { data } envelope.
  */
 @Injectable()
-export class TransformInterceptor<T>
-  implements NestInterceptor<T, ApiResponse<T>>
-{
+export class TransformInterceptor<T> implements NestInterceptor<
+  T,
+  ApiResponse<T>
+> {
   intercept(
     _context: ExecutionContext,
     next: CallHandler<T>,
