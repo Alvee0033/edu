@@ -9,6 +9,7 @@ import '../../../shared/widgets/error_widget.dart';
 import '../providers/dashboard_provider.dart';
 import '../providers/search_provider.dart';
 
+/// Dashboard: one [CustomScrollView] for the entire screen (single scroll).
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
 
@@ -53,8 +54,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           ref.invalidate(platformStatsProvider);
         },
         child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
-            // ─── Search Bar ─────────────────────────────────────────────
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.all(16),
@@ -72,8 +73,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 ),
               ),
             ),
-
-            // ─── Analytics Cards ────────────────────────────────────────
             dashboardAsync.when(
               loading: () => const SliverToBoxAdapter(
                 child: SizedBox(height: 120, child: LoadingWidget()),
@@ -110,8 +109,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 ),
               ),
             ),
-
-            // ─── Search Results ─────────────────────────────────────────
             if (currentQuery.isNotEmpty) ...[
               SliverToBoxAdapter(
                 child: Padding(
@@ -156,8 +153,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 ),
               ),
             ],
-
-            // Bottom padding
             const SliverToBoxAdapter(child: SizedBox(height: 24)),
           ],
         ),

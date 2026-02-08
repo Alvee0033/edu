@@ -6,6 +6,7 @@ import '../../../shared/widgets/loading_widget.dart';
 import '../../../shared/widgets/error_widget.dart';
 import '../providers/courses_provider.dart';
 
+/// Course detail: one [CustomScrollView] for header + video list (single scroll).
 class CourseDetailScreen extends ConsumerWidget {
   const CourseDetailScreen({super.key, required this.courseId});
 
@@ -27,10 +28,9 @@ class CourseDetailScreen extends ConsumerWidget {
         ),
         data: (course) {
           final videos = (course['videos'] as List?) ?? [];
-
           return CustomScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
             slivers: [
-              // Course header
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.all(16),
@@ -76,8 +76,6 @@ class CourseDetailScreen extends ConsumerWidget {
                   ),
                 ),
               ),
-
-              // Section title
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -90,15 +88,12 @@ class CourseDetailScreen extends ConsumerWidget {
                 ),
               ),
               const SliverToBoxAdapter(child: SizedBox(height: 8)),
-
-              // Video list
               SliverList(
                 delegate: SliverChildBuilderDelegate(
                   (context, index) {
                     final video = videos[index] as Map<String, dynamic>;
                     final duration =
                         (video['durationSeconds'] as int?) ?? 0;
-
                     return ListTile(
                       leading: CircleAvatar(
                         child: Text('${index + 1}'),
@@ -125,7 +120,6 @@ class CourseDetailScreen extends ConsumerWidget {
                   childCount: videos.length,
                 ),
               ),
-
               const SliverToBoxAdapter(child: SizedBox(height: 32)),
             ],
           );

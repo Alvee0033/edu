@@ -3,9 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/utils/extensions.dart';
 import '../../../shared/widgets/loading_widget.dart';
 import '../../../shared/widgets/error_widget.dart';
+import '../../../shared/widgets/single_scroll_screen.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../providers/profile_provider.dart';
 
+/// Profile: one [SingleChildScrollView] via [SingleScrollScreen] (single scroll).
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
@@ -38,12 +40,12 @@ class ProfileScreen extends ConsumerWidget {
         data: (user) {
           final profile =
               user['profile'] as Map<String, dynamic>? ?? {};
-
-          return SingleChildScrollView(
+          return SingleScrollScreen(
             padding: const EdgeInsets.all(24),
+            refreshIndicator: () async =>
+                ref.invalidate(profileProvider),
             child: Column(
               children: [
-                // Avatar
                 CircleAvatar(
                   radius: 48,
                   backgroundColor: context.colorScheme.primaryContainer,
@@ -57,8 +59,6 @@ class ProfileScreen extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
-
-                // Name
                 Text(
                   profile['name'] ?? 'User',
                   style: context.textTheme.headlineSmall?.copyWith(
@@ -66,8 +66,6 @@ class ProfileScreen extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 4),
-
-                // Email
                 Text(
                   user['email'] ?? '',
                   style: context.textTheme.bodyLarge?.copyWith(
@@ -75,8 +73,6 @@ class ProfileScreen extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 8),
-
-                // Bio
                 if (profile['bio'] != null &&
                     (profile['bio'] as String).isNotEmpty)
                   Text(
@@ -85,8 +81,6 @@ class ProfileScreen extends ConsumerWidget {
                     textAlign: TextAlign.center,
                   ),
                 const SizedBox(height: 32),
-
-                // Settings list
                 Card(
                   child: Column(
                     children: [
@@ -94,27 +88,21 @@ class ProfileScreen extends ConsumerWidget {
                         leading: const Icon(Icons.edit),
                         title: const Text('Edit Profile'),
                         trailing: const Icon(Icons.chevron_right),
-                        onTap: () {
-                          // TODO: navigate to edit profile
-                        },
+                        onTap: () {},
                       ),
                       const Divider(height: 1),
                       ListTile(
                         leading: const Icon(Icons.dark_mode),
                         title: const Text('Appearance'),
                         trailing: const Icon(Icons.chevron_right),
-                        onTap: () {
-                          // TODO: theme switcher
-                        },
+                        onTap: () {},
                       ),
                       const Divider(height: 1),
                       ListTile(
                         leading: const Icon(Icons.info_outlined),
                         title: const Text('About'),
                         trailing: const Icon(Icons.chevron_right),
-                        onTap: () {
-                          // TODO: about dialog
-                        },
+                        onTap: () {},
                       ),
                     ],
                   ),
